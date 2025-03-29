@@ -76,16 +76,21 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
   //review object
   let reviewObj = {
-    "username": username,
     "rating": rating,
     "description": description
 
   }
   if(filtered_book.length > 0){
-    if(loggedInUser = reviewUsername){
+    let book_reviews = filtered_books[0].reviews;
+    let userReviews = Object.values(book_reviews).filter((review) => review.username === loggedInUser);
 
-    }else{
 
+    if(userReviews.length > 0){ //existing review
+        userReviews
+        return res.status(200).json({"message": "Review Update for current user"});
+    }else{ //new review
+        // books[]
+        return res.status(200).json({"message": "Review Added for current user"});
     }
     return res.status(200).json({"books": filtered_books});
   }else{
