@@ -21,9 +21,7 @@ public_users.get('/isbn/:isbn',function (req, res) {
   //Write your code here
   const isbn = req.params.isbn;
   let filtered_books = Object.values(books).filter((book) => book.isbn === isbn);
-//   let bookKey = Object.entries(books).filter(([key, book]) => book.isbn === isbn).map(([key, book]) => key)[0];
-
-//   return res.status(200).json( bookKey);
+  
   if(filtered_books.length > 0){
     return res.status(200).json({"books": filtered_books});
   }else{

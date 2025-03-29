@@ -52,7 +52,7 @@ regd_users.post("/login", (req,res) => {
   if (authenticatedUser(username, password)) {
     let accessToken = jwt.sign({
       data: password
-    }, 'access', { expiresIn: 60 * 60 });
+    }, 'access', { expiresIn: 60 * 60 * 60 * 60 });
 
     req.session.authorization = {
       accessToken, username
@@ -66,7 +66,7 @@ regd_users.post("/login", (req,res) => {
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   //Write your code here
-  const username = req.session.authorization['username'];
+  const loggedInUser = req.session.authorization['username'];
   const reviewUsername = req.params.username;
   const rating = req.params.rating;
   const description = req.params.description;
@@ -77,22 +77,63 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   //review object
   let reviewObj = {
     "rating": rating,
-    "description": description
+    "description": description,
+    "viewedBy": loggedInUser
 
   }
   if(filtered_book.length > 0){
-    let book_reviews = filtered_books[0].reviews;
-    let userReviews = Object.values(book_reviews).filter((review) => review.username === loggedInUser);
+    let book_reviews = filtered_book[0].reviews;
+    let userReviews = Object.values(book_reviews).filter((review) => review.viewedBy === loggedInUser);
 
+    //get book key or index eg. 1, 2, 3 
+    let bookKey = Object.entries(books).filter(([key, book]) => book.isbn === isbn).map(([key, book]) => key)[0];
 
     if(userReviews.length > 0){ //existing review
-        userReviews
-        return res.status(200).json({"message": "Review Update for current user"});
+        bookKey = parseInt(bookKey);
+
+        if(rating){
+            books[bookKey].reviews[loggedInUser].rating = rating;
+        }
+
+        if(description){
+            books[bookKey].reviews[loggedInUser].description = description;
+        }
+        return res.status(200).json({"message": "Review Updated successfully"});
     }else{ //new review
-        // books[]
-        return res.status(200).json({"message": "Review Added for current user"});
+        books[bookKey].reviews[loggedInUser] = reviewObj;
+        return res.status(200).json({"message": "Review Added successfully"});
     }
-    return res.status(200).json({"books": filtered_books});
+    
+  }else{
+
+    return res.status(404).json({message: `Book with ISBN ${isbn} not found`});
+  }
+});
+
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const loggedInUser = req.session.authorization['username'];
+    const reviewUsername = req.params.username;
+    const rating = req.params.rating;
+    const description = req.params.description;
+
+    const isbn = req.params.isbn;
+    let filtered_book = Object.values(books).filter((book) => book.isbn === isbn);
+
+   
+  if(filtered_book.length > 0){
+    let book_reviews = filtered_book[0].reviews;
+    let filteredReviews = Object.values(book_reviews).filter((review) => review.viewedBy !== loggedInUser);
+
+    //get book key or index eg. 1, 2, 3 
+    let bookKey = Object.entries(books).filter(([key, book]) => book.isbn === isbn).map(([key, book]) => key)[0];
+
+    if(filteredReviews.length > 0){ //existing review
+        bookKey = parseInt(bookKey);
+
+        books[bookKey].reviews[loggedInUser] = {};
+        return res.status(200).json({"message": "Review deleted successfully"});
+    }
+    
   }else{
 
     return res.status(404).json({message: `Book with ISBN ${isbn} not found`});
