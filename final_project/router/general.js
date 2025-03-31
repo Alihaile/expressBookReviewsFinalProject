@@ -41,8 +41,6 @@ public_users.get('/isbn/:isbn',function (req, res) {
 
         return res.status(500).send(error);
     });
-
-
  });
   
 //function for getting books by isbn using promise
