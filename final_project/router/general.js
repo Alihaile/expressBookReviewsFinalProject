@@ -12,11 +12,6 @@ public_users.post("/register", (req,res) => {
   return res.status(300).json({message: "Yet to be implemented"});
 });
 
-//function for getting books using promise
-const getBookPromise = new Promise((resolve, reject) => {
-    resolve(books);
-});
-
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
     // res.setHeader('Content-Type', 'application/json');
@@ -29,19 +24,11 @@ public_users.get('/',function (req, res) {
     });
 });
 
-//function for getting books by isbn using promise
-const getBookByIsbnPromise = (isbn) => {
-    return new Promise((resolve, reject) => {
-        let filtered_books = Object.values(books).filter((book) => book.isbn === isbn);
+//function for getting books using promise
+const getBookPromise = new Promise((resolve, reject) => {
+    resolve(books);
+});
 
-        if(filtered_books.length > 0){
-            return resolve(filtered_books);
-        }else{
-
-            return reject({message: `Book with ISBN ${isbn} not found`});
-        }
-    });
-}
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
   //Write your code here
@@ -58,19 +45,20 @@ public_users.get('/isbn/:isbn',function (req, res) {
 
  });
   
- //function for getting books by author using promise
-const getBookByAuthorPromise = (author) => {
+//function for getting books by isbn using promise
+const getBookByIsbnPromise = (isbn) => {
     return new Promise((resolve, reject) => {
-        let filtered_books = Object.values(books).filter((book) => book.author === author);
+        let filtered_books = Object.values(books).filter((book) => book.isbn === isbn);
 
         if(filtered_books.length > 0){
             return resolve(filtered_books);
         }else{
 
-            return reject({message: `Book with author ${author} not found`});
+            return reject({message: `Book with ISBN ${isbn} not found`});
         }
     });
 }
+
 
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
@@ -88,16 +76,16 @@ public_users.get('/author/:author',function (req, res) {
   
 });
 
-//function for getting books by title using promise
-const getBookByTitlePromise = (title) => {
+ //function for getting books by author using promise
+const getBookByAuthorPromise = (author) => {
     return new Promise((resolve, reject) => {
-        let filtered_books = Object.values(books).filter((book) => book.title === title);
+        let filtered_books = Object.values(books).filter((book) => book.author === author);
 
         if(filtered_books.length > 0){
             return resolve(filtered_books);
         }else{
 
-            return reject({message: `Book with title ${title} not found`});
+            return reject({message: `Book with author ${author} not found`});
         }
     });
 }
@@ -113,9 +101,22 @@ public_users.get('/title/:title',function (req, res) {
 
         return res.status(500).send(error);
     });
-
   
 });
+
+//function for getting books by title using promise
+const getBookByTitlePromise = (title) => {
+    return new Promise((resolve, reject) => {
+        let filtered_books = Object.values(books).filter((book) => book.title === title);
+
+        if(filtered_books.length > 0){
+            return resolve(filtered_books);
+        }else{
+
+            return reject({message: `Book with title ${title} not found`});
+        }
+    });
+}
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
